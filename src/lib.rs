@@ -19,19 +19,21 @@ pub struct Finding {
     #[serde(rename = "Confidence")]
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(default)]
-    pub confidence: Option<i64>,
+    pub confidence: Option<u8>,
     #[serde(rename = "CreatedAt")]
     pub created_at: String,
     #[serde(rename = "Criticality")]
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(default)]
-    pub criticality: Option<i64>,
+    pub criticality: Option<u8>,
+    //TODO: This is max 1024 chars, we're not checking here
     #[serde(rename = "Description")]
     pub description: String,
     #[serde(rename = "FirstObservedAt")]
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(default)]
     pub first_observed_at: Option<String>,
+    //TODO: this can be a rule or UUID or ARN
     #[serde(rename = "GeneratorId")]
     pub generator_id: String,
     #[serde(rename = "Id")]
@@ -1127,7 +1129,7 @@ pub struct Workflow {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::Finding;
     #[test]
     fn it_works() {
         let f = Finding {
