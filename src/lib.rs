@@ -61,6 +61,9 @@ pub struct Finding {
     #[validate(length(min = 1, max = 512))]
     generator_id: String,
     #[serde(rename = "Id")]
+    #[validate(length(min = 1, max = 512))]
+    //Note this cannot be ARN, as that only applies
+    //to AWS generated findings
     pub id: String,
     #[serde(rename = "LastObservedAt")]
     #[serde(skip_serializing_if = "Option::is_none")]

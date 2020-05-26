@@ -1,6 +1,8 @@
 #[cfg(test)]
 mod tests {
     use crate::Finding;
+    use validator::{ValidationError, Validate};
+
     #[test]
     fn it_works() {
         let f = Finding::new();
@@ -9,8 +11,8 @@ mod tests {
     }
 
     #[test]
-    fn newfinding() {
+    fn invalid_data()  {
         let f = Finding::new();
-        assert_eq!(f.aws_account_id, "");
+
     }
 }
