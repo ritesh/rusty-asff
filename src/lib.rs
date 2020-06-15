@@ -4,20 +4,28 @@ extern crate validator;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
+
 use regex::Regex;
-use validator::{Validate};
+use validator::{Validate, ValidationError};
+use chrono::DateTime;
+
 #[macro_use]
 extern crate lazy_static;
 
 mod asff;
+
 use crate::asff::*;
 
 lazy_static! {
     static ref AWS_ACCOUNT_ID: Regex = Regex::new(r"^\d{12}$").unwrap();
-    //https://stackoverflow.com/questions/24543887/how-to-match-rfc3339-timestamp-using-regex
-    //TODO we could probably do better with chrono::DateTime to check?
-    static ref RFC3339: Regex = Regex::new(r"^\d{4}-\d{2}-\d{2}T\d{2}%3A\d{2}%3A\d{2}(?:%2E\d+)?[A-Z]?(?:[+.-](?:08%3A\d{2}|\d{2}[A-Z]))?$").unwrap();
     static ref FINDING_SCHEMA: Regex = Regex::new(r"^\d{4}-\d{2}-\d{2}$").unwrap();
+}
+
+pub fn rfc3339_validator(f: &str) -> Result<(), ValidationError> {
+    return match DateTime::parse_from_rfc3339(f) {
+        Ok(_) => Ok(()),
+        Err(_) => Err(ValidationError::new("This is not a valid datetime"))
+    };
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -26,7 +34,7 @@ pub struct Findings {
     #[serde(rename = "Findings")]
     pub findings: Vec<Finding>,
 }
-
+//See: https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-findings-format.html
 #[derive(Default, Validate, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Finding {
@@ -42,7 +50,7 @@ pub struct Finding {
     #[serde(default)]
     pub confidence: Option<u8>,
     #[serde(rename = "CreatedAt")]
-    #[validate(regex = "RFC3339")]
+    #[validate(custom = "rfc3339_validator")]
     pub created_at: String,
     #[serde(rename = "Criticality")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -129,14 +137,14 @@ pub struct Finding {
     #[serde(default)]
     pub threat_intel_indicators: Option<Vec<ThreatIntelIndicator>>,
     #[serde(rename = "Title")]
-    #[validate(length(min=1, max=256))]
+    #[validate(length(min = 1, max = 256))]
     pub title: String,
     //TODO: This should be an enum of allowed types
     #[serde(rename = "Types")]
-    #[validate(length(min=1, max=50))]
+    #[validate(length(min = 1, max = 50))]
     pub types: Vec<String>,
     #[serde(rename = "UpdatedAt")]
-    #[validate(regex = "RFC3339")]
+    #[validate(custom = "rfc3339_validator")]
     pub updated_at: String,
     #[serde(rename = "UserDefinedFields")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -192,12 +200,8 @@ impl Finding {
             workflow_state: None,
         }
     }
-    // pub fn validate(&self) -> Result<(), ValidationError>{
-    //     match self.validate() {
-    //         Ok(_) => Ok(()),
-    //         Err(e) => return Err(e)
-    //     }
-    // }
 }
+
+
 //TODO: why do we need this?
 mod tests;

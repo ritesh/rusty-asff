@@ -114,17 +114,17 @@ pub struct Recommendation {
 #[serde(rename_all = "camelCase")]
 pub struct Resource {
     #[serde(rename = "Details")]
-    details: Details,
+    pub details: Details,
     #[serde(rename = "Id")]
-    id: String,
+    pub id: String,
     #[serde(rename = "Partition")]
-    partition: String,
+    pub partition: String,
     #[serde(rename = "Region")]
-    region: String,
+    pub region: String,
     #[serde(rename = "Tags")]
-    tags: Tags,
+    pub tags: Tags,
     #[serde(rename = "Type")]
-    type_field: String,
+    pub type_field: String,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
